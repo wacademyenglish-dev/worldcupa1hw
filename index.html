@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fan Syntax | App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Teko:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { bgBase: '#0B132B', panelDark: '#1C2541', panelHover: '#3A506B', textMain: '#F8FAFC', textMuted: '#94A3B8', accentGold: '#F3A712', accentGreen: '#47A025', accentRed: '#E63946' },
+                    fontFamily: { epic: ['"Teko"', 'sans-serif'], ui: ['"Inter"', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #000; display: flex; justify-content: center; color: #F8FAFC; }
+        #app-container { width: 100%; max-width: 430px; height: 100vh; background-color: #0B132B; position: relative; overflow: hidden; border-left: 1px solid #1C2541; border-right: 1px solid #1C2541; display: flex; flex-direction: column; }
+        .glass { background: rgba(28, 37, 65, 0.95); backdrop-filter: blur(10px); }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+        .shake { animation: shake 0.4s; }
+        .btn-sport { background: #F3A712; color: #0B132B; font-family: 'Teko', sans-serif; text-transform: uppercase; font-size: 1.5rem; letter-spacing: 0.05em; transition: all 0.2s; box-shadow: 0 4px 0 #B57A09; }
+        .btn-sport:active { transform: translateY(4px); box-shadow: 0 0 0 #B57A09; }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <!-- Header -->
+        <header class="glass p-5 border-b-4 border-panelHover flex justify-between items-center z-10 shrink-0">
+            <div>
+                <h1 class="font-epic text-2xl text-accentGold tracking-widest uppercase">FAN_SYNTAX</h1>
+                <p class="font-ui text-[10px] text-accentGreen font-bold uppercase mt-1">Match Validation</p>
+            </div>
+            <div class="text-right">
+                <span id="q-counter" class="font-epic text-2xl text-textMain">01 / 15</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-6 flex flex-col justify-center relative">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5 pointer-events-none">
+                <i class="fa-solid fa-futbol text-[15rem] text-textMain"></i>
+            </div>
+            
+            <div id="question-card" class="relative z-10 w-full transition-opacity duration-300 bg-panelDark border-2 border-panelHover p-8 rounded-xl shadow-xl">
+                <p class="font-ui text-textMuted font-bold text-[10px] mb-4 uppercase">Complete the pass</p>
+                <h2 id="q-text" class="font-ui text-2xl font-bold leading-relaxed mb-10 text-textMain">Look! The players <span id="blank" class="border-b-2 border-dashed border-textMuted text-transparent px-4 mx-1">___</span> warming up.</h2>
+                
+                <div id="options-container" class="flex flex-col gap-4 font-ui font-bold">
+                    <!-- Buttons injected via JS -->
+                </div>
+            </div>
+
+            <!-- Result Screen -->
+            <div id="result-screen" class="hidden absolute inset-0 bg-bgBase z-20 flex flex-col items-center justify-center p-8 text-center">
+                <div class="w-32 h-32 rounded-full bg-accentGreen flex items-center justify-center mb-6 shadow-[0_0_40px_rgba(71,160,37,0.4)]">
+                    <i class="fa-solid fa-trophy text-6xl text-bgBase"></i>
+                </div>
+                <h2 class="font-epic text-5xl mb-4 text-textMain tracking-widest uppercase">MATCH FINISHED</h2>
+                <p class="font-ui text-textMuted font-bold mb-10 text-sm uppercase">Grammar Possession</p>
+                <div class="text-7xl font-epic text-accentGold mb-12" id="final-score">100%</div>
+                <button onclick="location.reload()" class="w-full btn-sport py-3 rounded">PLAY AGAIN</button>
+            </div>
+        </main>
+        
+        <!-- Progress -->
+        <div class="h-2 w-full bg-panelHover shrink-0">
+            <div id="progress-bar" class="h-full bg-accentGreen transition-all duration-300" style="width: 6.66%"></div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "[BLANK] three host countries in 2026.", opts: ["There is", "They are", "There are"], ans: "There are" },
+            { q: "Look! The players [BLANK] warming up.", opts: ["are", "is", "do"], ans: "are" },
+            { q: "[BLANK] a new stadium in New York.", opts: ["There is", "It is", "There are"], ans: "There is" },
+            { q: "The fans [BLANK] singing right now.", opts: ["is", "are", "do"], ans: "are" },
+            { q: "I [BLANK] watching the match on TV.", opts: ["am", "are", "is"], ans: "am" },
+            { q: "Brazil [BLANK] the only team with 5 stars.", opts: ["are", "is", "have"], ans: "is" },
+            { q: "[BLANK] many people at the airport.", opts: ["There are", "There is", "They are"], ans: "There are" },
+            { q: "What [BLANK] you doing now?", opts: ["do", "are", "is"], ans: "are" },
+            { q: "The team [BLANK] playing very well today.", opts: ["is", "are", "does"], ans: "is" },
+            { q: "We are flying to Mexico [BLANK].", opts: ["every day", "now", "yesterday"], ans: "now" },
+            { q: "[BLANK] 104 games in the tournament.", opts: ["There is", "There are", "They are"], ans: "There are" },
+            { q: "He [BLANK] wearing a Brazil shirt.", opts: ["am", "are", "is"], ans: "is" },
+            { q: "Are they winning? Yes, they [BLANK].", opts: ["are", "is", "do"], ans: "are" },
+            { q: "Is [BLANK] a hotel near the stadium?", opts: ["there", "they", "it"], ans: "there" },
+            { q: "The bus is [BLANK] to the stadium right now.", opts: ["go", "going", "goes"], ans: "going" }
+        ];
+
+        let current = 0; let score = 15;
+
+        const qText = document.getElementById('q-text');
+        const optionsContainer = document.getElementById('options-container');
+        const qCounter = document.getElementById('q-counter');
+        const progressBar = document.getElementById('progress-bar');
+        const card = document.getElementById('question-card');
+
+        function loadQuestion() {
+            const data = questions[current];
+            const parts = data.q.split("[BLANK]");
+            qText.innerHTML = `${parts[0]}<span id="blank" class="border-b-2 border-dashed border-textMuted text-transparent px-4 mx-1">___</span>${parts[1]}`;
+            
+            optionsContainer.innerHTML = '';
+            data.opts.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "w-full bg-panelHover border-2 border-panelHover text-textMain p-4 rounded text-left hover:border-accentGold transition-colors";
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(opt, data.ans, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            qCounter.innerText = `${String(current + 1).padStart(2, '0')} / 15`;
+            progressBar.style.width = `${((current + 1) / 15) * 100}%`;
+        }
+
+        function checkAnswer(selected, correct, btn) {
+            const blank = document.getElementById('blank');
+            Array.from(optionsContainer.children).forEach(b => b.disabled = true);
+            
+            blank.innerText = selected;
+            blank.classList.remove('text-transparent', 'border-dashed', 'border-textMuted');
+
+            if(selected === correct) {
+                blank.className = "text-bgBase bg-accentGreen font-bold px-2 mx-1 rounded";
+                btn.classList.replace('bg-panelHover', 'bg-accentGreen');
+                btn.classList.add('text-bgBase');
+                setTimeout(() => nextQuestion(), 800);
+            } else {
+                score--;
+                blank.className = "text-bgBase bg-accentRed font-bold px-2 mx-1 rounded";
+                btn.classList.replace('bg-panelHover', 'bg-accentRed');
+                btn.classList.add('text-white');
+                card.classList.add('shake');
+                setTimeout(() => card.classList.remove('shake'), 400);
+                setTimeout(() => nextQuestion(), 1200);
+            }
+        }
+
+        function nextQuestion() {
+            card.style.opacity = 0;
+            setTimeout(() => {
+                current++;
+                if(current < 15) {
+                    loadQuestion();
+                    card.style.opacity = 1;
+                } else {
+                    showResult();
+                }
+            }, 300);
+        }
+
+        function showResult() {
+            document.getElementById('result-screen').classList.remove('hidden');
+            const percent = Math.max(0, Math.round((score / 15) * 100));
+            document.getElementById('final-score').innerText = `${percent}%`;
+            if(percent < 70) {
+                document.getElementById('final-score').classList.replace('text-accentGold', 'text-accentRed');
+                document.querySelector('.fa-trophy').classList.replace('fa-trophy', 'fa-xmark');
+                document.querySelector('.fa-xmark').parentElement.classList.replace('bg-accentGreen', 'bg-accentRed');
+                document.querySelector('.fa-xmark').parentElement.classList.replace('shadow-[0_0_40px_rgba(71,160,37,0.4)]', 'shadow-[0_0_40px_rgba(230,57,70,0.4)]');
+            }
+        }
+
+        window.onload = loadQuestion;
+    </script>
+</body>
+</html>
